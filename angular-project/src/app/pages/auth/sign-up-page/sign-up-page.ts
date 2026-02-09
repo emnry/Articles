@@ -4,6 +4,7 @@ import {User} from '../../../classes/user';
 import {AuthService} from '../../../services/user/auth-service';
 import {Router, RouterLink} from '@angular/router';
 import {CommonModule} from '@angular/common';
+import { NotificationService } from '../../../services/notification/notification-service';
 
 @Component({
   selector: 'app-sign-up-page',
@@ -19,7 +20,9 @@ export class SignUpPage {
   public error:string = '';
 
   constructor(private userService: AuthService,
-              private router: Router) {}
+              private router: Router,
+              private notification: NotificationService
+) {}
 
   sendFormData(){
     this.userService.signUp(this.user).subscribe({
@@ -30,18 +33,24 @@ export class SignUpPage {
             next: response => {
               if (response.code == '200') {
 
-                alert(response.message);
+                this.notification.success(response.message || 'Inscription réussie');
                 this.router.navigate(['/articles']);
               }
               else{
-                this.error = response.message;
+                this.notification.error(response.message || 'Impossible de se connecter après inscription');
               }
+            },
+            error: () => {
+              this.notification.error('Erreur serveur lors de la connexion après inscription');
             }
           });
         }
         else{
-          this.error = data.message;
+          this.notification.error(data.message || 'Impossible de créer le compte');
         }
+      },
+      error: () => {
+        this.notification.error('Erreur serveur lors de l’inscription');
       }
     });
 

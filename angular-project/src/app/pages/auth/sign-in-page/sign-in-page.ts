@@ -5,6 +5,8 @@ import {AuthService} from '../../../services/user/auth-service';
 import {Router, RouterLink} from '@angular/router';
 import {CommonModule} from '@angular/common';
 
+import { NotificationService } from '../../../services/notification/notification-service';
+
 
 @Component({
   selector: 'app-sign-in-page',
@@ -23,18 +25,25 @@ export class SignInPage {
   public error:string = '';
 
   constructor(private userService: AuthService,
-              private router: Router) {}
+              private router: Router,
+              private notification: NotificationService
+
+              ) {}
 
   sendFormData(){
 
     this.userService.login(this.user).subscribe({
       next: data => {
         if (data.code == '200') {
+          this.notification.success('Connexion réussie');
           this.router.navigate(['/articles']);
         }
         else{
-          this.error = data.message;
+          this.notification.error(data.message || 'Identifiants invalides');
         }
+      },
+      error: () => {
+        this.notification.error('Erreur serveur lors de la connexion');
       }
     });
 

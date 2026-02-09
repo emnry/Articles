@@ -5,6 +5,10 @@ import {AuthService} from '../../../services/user/auth-service';
 import {Router, RouterLink} from '@angular/router';
 import {CommonModule} from '@angular/common';
 
+
+import { NotificationService } from '../../../services/notification/notification-service';
+
+
 @Component({
   selector: 'app-reset-password-page',
   imports: [FormsModule, RouterLink, CommonModule],
@@ -16,15 +20,22 @@ export class ResetPasswordPage {
   public user : User = new User();
 
   constructor(private userService: AuthService,
-              private router: Router) {}
+              private router: Router,
+              private notification: NotificationService
+) {}
 
 
   sendFormData(){
     this.userService.resetPassword(this.user).subscribe({
       next: data => {
         if (data.code == '200') {
-          alert(data.data);
+          this.notification.success(data.data || 'Mot de passe réinitialisé avec succès');
+        } else {
+          this.notification.error(data.message || 'Impossible de réinitialiser le mot de passe');
         }
+      },
+      error: () => {
+        this.notification.error('Erreur serveur lors de la réinitialisation');
       }
     });
 
